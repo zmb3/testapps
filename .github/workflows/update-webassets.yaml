@@ -29,7 +29,8 @@ jobs:
       # always use master.
       - name: Build webassets
         run: |
-          date > dist/date.txt
+          date >> dist/date.txt
+          date >> dist/e/bar
 
       - name: Dump GitHub context
         id: github_context_step
@@ -40,9 +41,16 @@ jobs:
           git config --global user.email github-goteleport-core-svc@goteleport.com
           git config --global user.name "$GITHUB_ACTOR"
 
-          cd dist
+          cd dist/e
+          git status
           git add -A
           git commit -m "Update webassets.e from zmb3/testapps@$GITHUB_SHA"
           echo "ref name is $GITHUB_REF_NAME"
+          git push origin HEAD:$GITHUB_REF_NAME
+
+          cd ..
+          git status
+          git add -A
+          git commit -m "Update webassets from zmb3/testapps@$GITHUB_SHA"
           git push origin HEAD:$GITHUB_REF_NAME
 
