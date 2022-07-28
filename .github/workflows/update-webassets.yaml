@@ -1,0 +1,51 @@
+name: Update Webassets
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout this repo
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Checkout webassets
+        uses: actions/checkout@v3
+        with:
+          ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          repository: zmb3/testassets
+          submodules: recursive
+          path: dist
+          ref: ${{ github.ref_name }}
+
+      # This workflow only runs on push to a protected branch, so the code
+      # has already been reviewed and is trusted. This means it is safe to
+      # the version of the action that we checked out and we don't need to
+      # always use master.
+      - name: Build webassets
+        run: |
+          date > dist/date.txt
+
+      - name: Dump GitHub context
+        id: github_context_step
+        run: echo '${{ toJSON(github) }}'
+
+      - name: Push updates
+        run: |
+          git config --global user.email github-goteleport-core-svc@goteleport.com
+          git config --global user.name "$GITHUB_ACTOR"
+
+          cd dist
+          git add -A
+          git commit -m "Update webassets.e from zmb3/testapps@$GITHUB_SHA"
+          echo "ref name is $GITHUB_REF_NAME"
+          git push origin HEAD:$GITHUB_REF_NAME
+
