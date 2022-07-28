@@ -20,6 +20,7 @@ jobs:
         with:
           ssh-key: ${{ secrets.SSH_PRIVATE_KEY }}
           repository: zmb3/testassets
+          submodules: recursive
           path: dist
           ref: ${{ github.ref_name }}
 
